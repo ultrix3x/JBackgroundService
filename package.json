@@ -1,0 +1,38 @@
+{
+  "name" : "BackgroundService",
+  "version" : "1.0.0",
+  "private" : true,
+  "description" : "BackgroundService is a subsystem to other systems",
+  "keywords" : "background service",
+  "homepage" : "http://www.delith.org",
+  "bugs": {
+    "url" : "http://www.delith.org/issues",
+    "email" : "tb@delith.org"
+  },
+  "license" : {
+    "license" : "BSD"
+  },
+  "author" : {
+    "name" : "Thomas Björk",
+    "email" : "tb@delith.org",
+    "url" : "http://www.delith.org"
+  },
+  "scripts": {
+    "start": "node service.js"
+  },
+  "engines": {
+    "node": "0.10.25",
+    "npm": "1.4.0"
+  },
+  "repository" : {
+    
+  },
+  "dependencies" : {
+    "jade" : "",
+    "node-sass": "",
+    "crypto": "",
+    "roole": "",
+    "roole-parser": "",
+    "roole-compiler": ""
+  }
+}
