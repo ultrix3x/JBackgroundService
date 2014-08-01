@@ -1,8 +1,8 @@
-exports.UExecute = function(msg, parts, utils) {
+exports.UExecute = function(parts) {
   return false;
 };
 
-exports.TExecute = function(data, parts, utils, client) {
+exports.TExecute = function(parts, client) {
   var css, e, nodeSass, s, sass;
   nodeSass = true;
   try {
@@ -10,15 +10,14 @@ exports.TExecute = function(data, parts, utils, client) {
     if (s.length === 0) {
       nodeSass = false;
     }
-  } catch (_error) {
+  } catch(_error) {
     e = _error;
     nodeSass = false;
   }
-  if (nodeSass) {
+  if(nodeSass) {
     sass = require('node-sass');
-    data = data.substring(5, data.length);
     css = sass.renderSync({
-      "data": data
+      "data": parts[1]
     });
     return client.write(css);
   } else {

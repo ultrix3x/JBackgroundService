@@ -1,8 +1,8 @@
-exports.UExecute = function(msg, parts, utils) {
+exports.UExecute = function(parts) {
   return false;
 };
 
-exports.TExecute = function(data, parts, utils, client) {
+exports.TExecute = function(parts, client) {
   var coffee, e, html, nodeCoffee, s;
   nodeCoffee = true;
   try {
@@ -16,8 +16,7 @@ exports.TExecute = function(data, parts, utils, client) {
   }
   if (nodeCoffee) {
     coffee = require("coffee-script");
-    data = data.substring(7, data.length);
-    html = coffee.compile(data);
+    html = coffee.compile(parts[1]);
     return client.write(html);
   } else {
     return client.write("404: Coffee-Script not available");

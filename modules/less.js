@@ -1,8 +1,8 @@
-exports.UExecute = function(msg, parts, utils) {
+exports.UExecute = function(parts) {
   return false;
 };
 
-exports.TExecute = function(data, parts, utils, client) {
+exports.TExecute = function(parts, client) {
   var e, less, nodeLess, s;
   nodeLess = true;
   try {
@@ -16,8 +16,9 @@ exports.TExecute = function(data, parts, utils, client) {
   }
   if (nodeLess) {
     less = require("less");
-    data = data.substring(5, data.length);
-    return less.render(data, function(e, css) {
+    s = parts[1];
+    console.log(s);
+    return less.render(s, function(e, css) {
       return client.write(css);
     });
   } else {

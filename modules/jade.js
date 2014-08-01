@@ -1,8 +1,8 @@
-exports.UExecute = function(msg, parts, utils) {
+exports.UExecute = function(parts) {
   return false;
 };
 
-exports.TExecute = function(data, parts, utils, client) {
+exports.TExecute = function(parts, client) {
   var e, html, jade, nodeJade, options, s;
   nodeJade = true;
   try {
@@ -17,8 +17,7 @@ exports.TExecute = function(data, parts, utils, client) {
   if (nodeJade) {
     jade = require("jade");
     options = {};
-    data = data.substring(5, data.length);
-    html = jade.render(data, options);
+    html = jade.render(parts[1], options);
     return client.write(html);
   } else {
     return client.write("404: JADE not available");

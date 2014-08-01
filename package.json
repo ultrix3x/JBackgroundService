@@ -29,6 +29,7 @@
   },
   "dependencies" : {
     "jade" : "",
+    "less" : "",
     "node-sass": "",
     "crypto": "",
     "roole": "",

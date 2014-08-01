@@ -1,8 +1,8 @@
-exports.UExecute = function(msg, parts, utils) {
+exports.UExecute = function(parts) {
   return false;
 };
 
-exports.TExecute = function(data, parts, utils, client) {
+exports.TExecute = function(parts, client) {
   var ast, compiler, css, e, nodeRoole, parser, s;
   nodeRoole = true;
   try {
@@ -19,10 +19,9 @@ exports.TExecute = function(data, parts, utils, client) {
     nodeRoole = false;
   }
   if (nodeRoole) {
-    data = data.substring(6, data.length);
     parser = require('roole-parser');
     compiler = require('roole-compiler');
-    ast = parser.parse(data);
+    ast = parser.parse(parts[1]);
     css = compiler.compile(ast);
     return client.write(css);
   } else {

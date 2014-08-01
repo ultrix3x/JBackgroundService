@@ -1,7 +1,7 @@
-exports.UExecute = function(msg, parts, utils) {
+exports.UExecute = function(parts) {
   return "Test";
 };
 
-exports.TExecute = function(data, parts, utils, client) {
+exports.TExecute = function(parts, client) {
   return client.write("Test");
 };
