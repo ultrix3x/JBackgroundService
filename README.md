@@ -105,3 +105,49 @@ A simple test module that returns the string "Test".
 This module uses a command line interaction to compile typescript scripts into javascript.
 
 This module is intended for tcp services only.
+
+## Examples in PHP
+This simple example tries to send the session-id to a fictive module called registersession.
+```php
+$fp = @stream_socket_client('udp://127.0.0.1:12341', $errno, $errstr);
+if($fp) {
+  @socket_set_timeout($fp, 0, 50);
+  if($data !== null) {
+    @fwrite($fp, 'registersession:'.session_id());
+  }
+  @fclose($fp);
+}
+```
+
+This simple example tries to compile a less script to css.
+In the first step it attempts to connect to the background service at port
+12341 on localhost (127.0.0.1). If this fails it tries to use the command
+line to interact.
+```php
+function CompileLESS($code) {
+  $fp = @fsockopen('tcp://127.0.0.1:12341');
+  if($fp) {
+    fputs($fp, 'less:'.utf8_encode($code));
+    $result = '';
+    while(!feof($fp)) {
+      $result .= @fgets($fp, 1024);
+      break;
+    }
+    if(!preg_match('/^[45][0-9]{2}\:/Us', ltrim($result))) {
+      return utf8_decode($result);
+    }
+    return null;
+  }
+  $tempfile = sys_get_temp_dir().'/'.uniqid('less');
+  $infile = $tempfile.'.less';
+  $outfile = $tempfile.'.css';
+  system('lessc '.$infile.' > '.$outfile);
+  unlink($infile);
+  if(file_exists($outfile)) {
+    $code = file_get_contents($outfile);
+    unlink($outfile);
+    return $code;
+  }
+  return null;
+}
+```
