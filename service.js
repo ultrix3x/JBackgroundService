@@ -125,6 +125,38 @@ for(_i = 0, _len = config.length; _i < _len; _i++) {
         // If the incoming data is hello then return olleh
         client.write('olleh');
         client.end();
+      } else if (data.substring(0, 6) == 'queue:') {
+        // Check if the incoming data is a queue request
+        if(data.substring(6, 9) == 'add') {
+          // Is it an add queue request then
+          // create a new job
+          var job = new BackgroundJob();
+          // Start the job
+          job.start(data.substring(10,data.length));
+          // Return the id for the job
+          client.write('id:'+job.id);
+          client.end();
+        } else if(data.substring(6, 9) == 'get') {
+          // Is it an get queue request then
+          // get the reuested job id
+          var id = data.substring(10, data.length).split(':');
+          // Get the job object from the jobList
+          var job = jobList[id[1]];
+          // Call the jobs wait function
+          job.wait(client);
+        } else if(data.substring(6, 11) == 'check') {
+          // Is it an get queue request then
+          // get the reuested job id
+          var id = data.substring(12, data.length).split(':');
+          // Get the job object from the jobList
+          var job = jobList[id[1]];
+          // Return the jobs current status
+          client.write(job.status.toString());
+          client.end();
+        } else {
+          client.write('500: Unknown queue request');
+          client.end();
+        }
       } else {
         // Split the incoming data into two parts
         parts = data.split(':', 2);
@@ -148,7 +180,7 @@ for(_i = 0, _len = config.length; _i < _len; _i++) {
             // If the filename exist then require the filename and assign its
             // exports to modObj
             modObj = require(filename);
-            // Make a call to the function UExecute exported by the module
+            // Make a call to the function TExecute exported by the module
             modObj.TExecute(parts, client);
           } else {
             // Return an error message if a module wasn't found
@@ -171,3 +203,93 @@ for(_i = 0, _len = config.length; _i < _len; _i++) {
     }
   });
 }
+
+// Define the jobList
+var jobList = {};
+// Define the jobID variable
+var jobID = 0;
+
+// Define the BackgroundJob class
+function BackgroundJob() {
+  // Initial status is set to 0
+  this.status = 0;
+  // The output content for the job is initially an empty string
+  this.content = '';
+  // The jobs id is set to 0 before start
+  this.id = 0;
+}
+
+// Define the prototypes for the BackgroundJob
+BackgroundJob.prototype = {
+  // The start function
+  start: function(data) {
+    // Get a jobID
+    this.id = (++jobID);
+    // Change the jobs status to 1
+    this.status = 1;
+    // Add this job to the jobList
+    jobList[this.id] = this;
+    // Split the incoming data into two parts
+    var parts = data.split(':', 2);
+    // Get the modules name
+    var moduleName = parts[0];
+    // Cheanup the modules name
+    moduleName = moduleName.replace(/[^a-zA-ZA0-9\-\_]/g, '');
+    // Make sure the data in the second parts is correct
+    parts[1] = data.substring((parts[0].length + 1), data.length);
+    // Create a filename for the module define by the moduleName
+    var filename = './modules/'+moduleName+'.js';
+    // Define a variable that points to this but is usable later on as well
+    var self = this;
+    // Call a setTimeout to make it a "background process"
+    setTimeout(function() {
+      // Check if the filename exists
+      return fs.exists(filename, function(exists) {
+        // Define the variable holding the module to use
+        var modObj;
+        if (exists) {
+          // If the filename exist then require the filename and assign its
+          // exports to modObj
+          modObj = require(filename);
+          // Make a call to the function TExecute exported by the module
+          // Note that the client socket is replaced by self
+          modObj.TExecute(parts, self);
+        } else {
+          // Return an error message if a module wasn't found
+          self.write('400: Unknown request');
+          self.end();
+        }
+      });
+    }, 1);
+    // Return the job id
+    return this.id;
+  },
+  // The wait function
+  wait: function(client) {
+    // Checks if the jobs status is set to 2
+    if(this.status == 2) {
+      // The job is done so write the content to the client socket
+      client.write(this.content);
+      client.end();
+    } else {
+      // The job is not done so wait 1 millisecond and check again
+      var self = this;
+      setTimeout(function() {
+        self.wait(client);
+      }, 1);
+    }
+  },
+  // The write function
+  write: function(data) {
+    // Collect the data from the module.
+    // The module believes this is a socket.
+    this.content += data;
+  },
+  // The end function
+  end: function() {
+    // Change the status for the job to 2 which means that the job has
+    // finnished.
+    // The module believes this is a socket.
+    this.status = 2;
+  }
+};
