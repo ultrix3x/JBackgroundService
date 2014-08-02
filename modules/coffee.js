@@ -17,8 +17,10 @@ exports.TExecute = function(parts, client) {
   if (nodeCoffee) {
     coffee = require("coffee-script");
     html = coffee.compile(parts[1]);
-    return client.write(html);
+    client.write(html);
+    client.end();
   } else {
-    return client.write("404: Coffee-Script not available");
+    client.write("404: Coffee-Script not available");
+    client.end();
   }
 };

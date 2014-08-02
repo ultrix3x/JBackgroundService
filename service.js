@@ -120,11 +120,11 @@ for(_i = 0, _len = config.length; _i < _len; _i++) {
       if (data === 'helo') {
         // If the incoming data is helo then return oleh
         client.write('oleh');
-        return client.write('\n');
+        client.end();
       } else if (data === 'hello') {
         // If the incoming data is hello then return olleh
         client.write('olleh');
-        return client.write('\n');
+        client.end();
       } else {
         // Split the incoming data into two parts
         parts = data.split(':', 2);
@@ -150,11 +150,10 @@ for(_i = 0, _len = config.length; _i < _len; _i++) {
             modObj = require(filename);
             // Make a call to the function UExecute exported by the module
             modObj.TExecute(parts, client);
-            return client.write('\n');
           } else {
             // Return an error message if a module wasn't found
             client.write('400: Unknown request');
-            return client.write('\n');
+            client.end();
           }
         });
       }

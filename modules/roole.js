@@ -23,8 +23,10 @@ exports.TExecute = function(parts, client) {
     compiler = require('roole-compiler');
     ast = parser.parse(parts[1]);
     css = compiler.compile(ast);
-    return client.write(css);
+    client.write(css);
+    client.end();
   } else {
-    return client.write("404: Roole not available");
+    client.write("404: Roole not available");
+    client.end();
   }
 };

@@ -18,8 +18,10 @@ exports.TExecute = function(parts, client) {
     jade = require("jade");
     options = {};
     html = jade.render(parts[1], options);
-    return client.write(html);
+    client.write(html);
+    client.end();
   } else {
-    return client.write("404: JADE not available");
+    client.write("404: JADE not available");
+    client.end();
   }
 };

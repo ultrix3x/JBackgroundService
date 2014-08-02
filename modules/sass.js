@@ -19,8 +19,10 @@ exports.TExecute = function(parts, client) {
     css = sass.renderSync({
       "data": parts[1]
     });
-    return client.write(css);
+    client.write(css);
+    client.end();
   } else {
-    return client.write("404: SASS not available");
+    client.write("404: SASS not available");
+    client.end();
   }
 };

@@ -27,7 +27,7 @@ exports.TExecute = function(parts, client) {
       } else {
         status = true;
       }
-      return status;
+      client.end();
     });
   });
 };

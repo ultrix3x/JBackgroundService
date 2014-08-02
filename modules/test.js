@@ -3,5 +3,6 @@ exports.UExecute = function(parts) {
 };
 
 exports.TExecute = function(parts, client) {
-  return client.write("Test");
+  client.write("Test");
+  client.end();
 };

@@ -17,11 +17,12 @@ exports.TExecute = function(parts, client) {
   if (nodeLess) {
     less = require("less");
     s = parts[1];
-    console.log(s);
     return less.render(s, function(e, css) {
-      return client.write(css);
+      client.write(css);
+      client.end();
     });
   } else {
-    return client.write("404: LESS not available");
+    client.write("404: LESS not available");
+    client.end();
   }
 };
