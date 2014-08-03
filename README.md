@@ -121,15 +121,15 @@ The tcp service can be called with a prefix `"queue:"` followed by the action an
 
 This will create a "background" job that can be referred to with an id.
 
-## `queue:add:`
+## queue:add:
 The prefix `"queue:add:"` will add the request as a background job and return an id prefixed with `"id:"`
 
-## `queue:get:`
+## queue:get:
 The request should be in the form `"queue:get:id:<<id>>"` where `<<id>>` is the jobs id.
 
 The request waits until the job has finnished and then returns the result as if the request was made with a direct call.
 
-## `queue:check:`
+## queue:check:
 This is a status check. The request should have the form `"queue:check:id:<<id>>"` where `<<id>>` is the jobs id.
 
 The request returns the current status if the job. 0 if it hasn't been started, 1 if it has started and 2 if it is done.
