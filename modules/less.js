@@ -26,3 +26,8 @@ exports.TExecute = function(parts, client) {
     client.end();
   }
 };
+
+exports.Unload = function() {
+  var name = require.resolve('less');
+  delete require.cache[name];
+}

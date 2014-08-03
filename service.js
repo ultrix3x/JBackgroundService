@@ -80,6 +80,7 @@ for(_i = 0, _len = config.length; _i < _len; _i++) {
         // If the filename exist then require the filename and assign its
         // exports to modObj
         modObj = require(filename);
+        autoReload.add(filename);
         // Return the result from the call to the function UExecute 
         // exported by the module
         return modObj.UExecute(parts);
@@ -180,6 +181,7 @@ for(_i = 0, _len = config.length; _i < _len; _i++) {
             // If the filename exist then require the filename and assign its
             // exports to modObj
             modObj = require(filename);
+            autoReload.add(filename);
             // Make a call to the function TExecute exported by the module
             modObj.TExecute(parts, client);
           } else {
@@ -251,6 +253,7 @@ BackgroundJob.prototype = {
           // If the filename exist then require the filename and assign its
           // exports to modObj
           modObj = require(filename);
+          autoReload.add(filename);
           // Make a call to the function TExecute exported by the module
           // Note that the client socket is replaced by self
           modObj.TExecute(parts, self);
@@ -293,3 +296,96 @@ BackgroundJob.prototype = {
     this.status = 2;
   }
 };
+
+// Class for managing changes in the modules
+function AutoReloadModule(autoStart) {
+  // Define a list for the loaded modules
+  this.moduleList = {};
+  // The interval. Keeps track of start and stop.
+  this.interval = null;
+  // If true is given in the constructor then autostart
+  if(autoStart !== false) {
+    // Call start() to start the auto reloader
+    this.start();
+  }
+}
+// Define prototypes
+AutoReloadModule.prototype = {
+  // Start function
+  start: function() {
+    // If interval != null then auto reloader is acitve
+    if(this.interval !== null) {
+      // Stop the auto reloader
+      clearInterval(this.interval);
+    }
+    // Know who we are
+    var self = this;
+    // Start a new interval
+    this.interval = setInterval(function() {
+      // Call the check function every 10 seconds
+      self.check();
+    }, 10000);
+  },
+  // Stop function
+  stop: function() {
+    // If the interval != null then auto reloader is active
+    if(this.interval !== null) {
+      // Clear the interval
+      clearInterval(this.interval);
+      // Set the local variable to null to indicate that we have stopped
+      this.interval = null;
+    }
+  },
+  // Check function
+  check: function() {
+    // Know who we are
+    var self = this;
+    // Loop through all items in the module list
+    for(var key in this.moduleList) {
+      // Assign the info about the module to the variable info
+      var info = this.moduleList[key];
+      // Check the file stats for the filename
+      fs.stat(info.filename, function(err, stat) {
+        // If the file has changed since added then unload
+        if(stat.mtime.toString() != info.filetime) {
+          // If the module exported an unload function
+          if(info.exports.Unload) {
+            // ... then call it
+            info.exports.Unload();
+          }
+          // Get the name for the module
+          var name = require.resolve(info.filename);
+          // Delete the module from the require.cache
+          delete require.cache[name];
+          // Delete the module from the auto reloaders moduleList
+          delete self.moduleList[key];
+        }
+      });
+    }
+  },
+  // Add a new module
+  add: function(filename, undef) {
+    // Create a key from the filename
+    var key = filename.replace(/[^a-zA-Z0-9\-\_]/g, '');
+    // Know who we are
+    var self = this;
+    // If the module hasn't been added then add it
+    if(this.moduleList[key] == undef) {
+      // Get the full filename for the module
+      var realname = require.resolve(filename);
+      // Check if the filename exists
+      fs.exists(realname, function(exists) {
+        // If it exists
+        if(exists) {
+          // .. get the file stats
+          fs.stat(realname, function(err, stats) {
+            // Add the module info to the moduleList
+            self.moduleList[key] = {"filename": realname, "filetime": stats.mtime.toString(), "exports": require(realname)};
+          });
+        }
+      });
+    }
+  }
+}
+// Create an instance of the AutoReloadModule and autostart it.
+var autoReload = new AutoReloadModule(true);

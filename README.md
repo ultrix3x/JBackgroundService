@@ -56,6 +56,16 @@ The parts argument is an array where the module name resides in parts[0] and the
 ##### Argument - client
 The client argument is an object containing the client socket. Normally the result will be written to the client.write function.
 
+#### Unload = function()
+This is a non-mandatory function. It is called (if it exists) when the modules file has been changed.
+This is a part of the AutoReloadModule function that automatically checks everi loaded module each 10 seconds. If the loaded modules main file has an altered mtime (files modification time) then it is automatically unloaded. If the module has done call to require these should be unloaded manually by the module.
+```javascript
+exports.Unload = function() {
+  var name = require.resolve('module-name-loaded-by-the-module');
+  delete require.cache[name];
+}
+```
+
 ## Calling conventions
 A call to the BackgroundService should contain a string.
 

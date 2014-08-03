@@ -25,3 +25,8 @@ exports.TExecute = function(parts, client) {
     client.end();
   }
 };
+
+exports.Unload = function() {
+  var name = require.resolve('jade');
+  delete require.cache[name];
+}

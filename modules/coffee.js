@@ -24,3 +24,8 @@ exports.TExecute = function(parts, client) {
     client.end();
   }
 };
+
+exports.Unload = function() {
+  var name = require.resolve('coffee-script');
+  delete require.cache[name];
+}
